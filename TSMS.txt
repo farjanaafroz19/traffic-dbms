@@ -1,0 +1,557 @@
+DROP TABLE EMERGENCY_VEHICLES;
+DROP TABLE VEHICLES;
+DROP TABLE TRAFFIC_SIGNALS;
+DROP TABLE TRAFFIC_DENSITY_LOG;
+DROP TABLE INTERSECTIONS;
+
+CREATE TABLE INTERSECTIONS (
+    intersection_id NUMBER PRIMARY KEY,
+    name VARCHAR2(255),
+    location VARCHAR2(255),
+    density_level NUMBER CHECK (density_level BETWEEN 1 AND 5)  -- Density level on a scale from 1 to 5
+);
+
+
+CREATE TABLE TRAFFIC_SIGNALS (
+    signal_id NUMBER PRIMARY KEY,
+    location VARCHAR2(255),
+    status VARCHAR2(10) CHECK (status IN ('GREEN', 'YELLOW', 'RED')),  -- Restrict values to GREEN, YELLOW, or RED
+    default_timing NUMBER,  -- Default timing in seconds
+    intersection_id NUMBER,
+    FOREIGN KEY (intersection_id) REFERENCES INTERSECTIONS(intersection_id)
+);
+
+
+CREATE TABLE VEHICLES (
+    vehicle_id NUMBER PRIMARY KEY,
+    type VARCHAR2(20) CHECK (type IN ('Car', 'Emergency', 'Bus', 'Truck', 'Bike')),  -- Define allowed vehicle types
+    speed NUMBER,  -- Speed in mph
+    direction VARCHAR2(50),
+    timestamp TIMESTAMP,
+    intersection_id NUMBER,
+    FOREIGN KEY (intersection_id) REFERENCES INTERSECTIONS(intersection_id)
+);
+
+
+CREATE TABLE TRAFFIC_DENSITY_LOG (
+    log_id NUMBER PRIMARY KEY,
+    intersection_id NUMBER,
+    timestamp TIMESTAMP,
+    vehicle_count NUMBER,  -- Number of vehicles detected
+    density_level NUMBER CHECK (density_level BETWEEN 1 AND 5),  -- Density level on a scale from 1 to 5
+    FOREIGN KEY (intersection_id) REFERENCES INTERSECTIONS(intersection_id)
+);
+
+
+CREATE TABLE EMERGENCY_VEHICLES (
+    emergency_id NUMBER PRIMARY KEY,
+    vehicle_id NUMBER,
+    priority_status VARCHAR2(10) CHECK (priority_status IN ('High', 'Medium', 'Low')),  -- Priority status of the emergency vehicle
+    intersection_id NUMBER,
+    timestamp TIMESTAMP,
+    FOREIGN KEY (vehicle_id) REFERENCES VEHICLES(vehicle_id),
+    FOREIGN KEY (intersection_id) REFERENCES INTERSECTIONS(intersection_id)
+);
+
+
+DESCRIBE EMERGENCY_VEHICLES;
+DESCRIBE VEHICLES;
+DESCRIBE TRAFFIC_SIGNALS;
+DESCRIBE TRAFFIC_DENSITY_LOG;
+DESCRIBE INTERSECTIONS;
+
+
+
+
+
+
+
+INSERT INTO INTERSECTIONS (intersection_id, name, location, density_level) VALUES
+(201, 'Gulshan ', 'Gulshan 1', 4);
+INSERT INTO INTERSECTIONS (intersection_id, name, location, density_level) VALUES
+(202, 'Farmgate ', ' Farmgate', 5);
+INSERT INTO INTERSECTIONS (intersection_id, name, location, density_level) VALUES
+(203, 'Mohakhali ', ' Mohakhali', 3);
+INSERT INTO INTERSECTIONS (intersection_id, name, location, density_level) VALUES
+(204, 'Dhanmondi ', ' Dhanmondi 27', 2);
+INSERT INTO INTERSECTIONS (intersection_id, name, location, density_level) VALUES
+(205, 'Banani ', ' Banani', 3);
+INSERT INTO INTERSECTIONS (intersection_id, name, location, density_level) VALUES
+(206, 'Motijheel ', ' Motijheel', 4);
+
+
+
+INSERT INTO TRAFFIC_SIGNALS (signal_id, location, status, default_timing, intersection_id) VALUES
+(101, 'Gulshan 1', 'GREEN', 60, 201);
+INSERT INTO TRAFFIC_SIGNALS (signal_id, location, status, default_timing, intersection_id) VALUES
+(102, 'Farmgate', 'RED', 45, 202);
+INSERT INTO TRAFFIC_SIGNALS (signal_id, location, status, default_timing, intersection_id) VALUES
+(103, 'Mohakhali', 'YELLOW', 30, 203);
+INSERT INTO TRAFFIC_SIGNALS (signal_id, location, status, default_timing, intersection_id) VALUES
+(104, 'Dhanmondi 27', 'GREEN', 40, 204);
+INSERT INTO TRAFFIC_SIGNALS (signal_id, location, status, default_timing, intersection_id) VALUES
+(105, 'Banani', 'RED', 50, 205);
+INSERT INTO TRAFFIC_SIGNALS (signal_id, location, status, default_timing, intersection_id) VALUES
+(106, 'Motijheel', 'YELLOW', 55, 206);
+
+
+
+
+INSERT INTO VEHICLES (vehicle_id, type, speed, direction, timestamp, intersection_id) VALUES
+(301, 'Car', 45, 'North', TO_DATE('2024-11-14 08:30:00', 'YYYY-MM-DD HH24:MI:SS'), 201);
+INSERT INTO VEHICLES (vehicle_id, type, speed, direction, timestamp, intersection_id) VALUES
+(302, 'Emergency', 70, 'South', TO_DATE('2024-11-14 08:45:00', 'YYYY-MM-DD HH24:MI:SS'), 202);
+INSERT INTO VEHICLES (vehicle_id, type, speed, direction, timestamp, intersection_id) VALUES
+(303, 'Bus', 35, 'East', TO_DATE('2024-11-14 09:00:00', 'YYYY-MM-DD HH24:MI:SS'), 203);
+INSERT INTO VEHICLES (vehicle_id, type, speed, direction, timestamp, intersection_id) VALUES
+(304, 'Truck', 50, 'West', TO_DATE('2024-11-14 09:15:00', 'YYYY-MM-DD HH24:MI:SS'), 204);
+INSERT INTO VEHICLES (vehicle_id, type, speed, direction, timestamp, intersection_id) VALUES
+(305, 'Bike', 25, 'North', TO_DATE('2024-11-14 09:30:00', 'YYYY-MM-DD HH24:MI:SS'), 205);
+INSERT INTO VEHICLES (vehicle_id, type, speed, direction, timestamp, intersection_id) VALUES
+(306, 'Emergency', 65, 'South', TO_DATE('2024-11-14 09:45:00', 'YYYY-MM-DD HH24:MI:SS'), 206);
+
+
+
+INSERT INTO TRAFFIC_DENSITY_LOG (log_id, intersection_id, timestamp, vehicle_count, density_level) VALUES
+(401, 201, TO_DATE('2024-11-14 08:00:00', 'YYYY-MM-DD HH24:MI:SS'), 50, 4);
+INSERT INTO TRAFFIC_DENSITY_LOG (log_id, intersection_id, timestamp, vehicle_count, density_level) VALUES
+(402, 202, TO_DATE('2024-11-14 09:00:00', 'YYYY-MM-DD HH24:MI:SS'), 75, 5);
+INSERT INTO TRAFFIC_DENSITY_LOG (log_id, intersection_id, timestamp, vehicle_count, density_level) VALUES
+(403, 203, TO_DATE('2024-11-14 10:00:00', 'YYYY-MM-DD HH24:MI:SS'), 40, 3);
+INSERT INTO TRAFFIC_DENSITY_LOG (log_id, intersection_id, timestamp, vehicle_count, density_level) VALUES
+(404, 204, TO_DATE('2024-11-14 11:00:00', 'YYYY-MM-DD HH24:MI:SS'), 30, 2);
+INSERT INTO TRAFFIC_DENSITY_LOG (log_id, intersection_id, timestamp, vehicle_count, density_level) VALUES
+(405, 205, TO_DATE('2024-11-14 12:00:00', 'YYYY-MM-DD HH24:MI:SS'), 60, 3);
+INSERT INTO TRAFFIC_DENSITY_LOG (log_id, intersection_id, timestamp, vehicle_count, density_level) VALUES
+(406, 206, TO_DATE('2024-11-14 13:00:00', 'YYYY-MM-DD HH24:MI:SS'), 65, 4);
+
+
+
+INSERT INTO EMERGENCY_VEHICLES (emergency_id, vehicle_id, priority_status, intersection_id, timestamp) VALUES
+(501, 302, 'High', 202, TO_DATE('2024-11-14 08:45:00', 'YYYY-MM-DD HH24:MI:SS'));
+INSERT INTO EMERGENCY_VEHICLES (emergency_id, vehicle_id, priority_status, intersection_id, timestamp) VALUES
+(502, 306, 'Medium', 203, TO_DATE('2024-11-14 09:15:00', 'YYYY-MM-DD HH24:MI:SS'));
+INSERT INTO EMERGENCY_VEHICLES (emergency_id, vehicle_id, priority_status, intersection_id, timestamp) VALUES
+(503, 306, 'High', 204, TO_DATE('2024-11-14 09:30:00', 'YYYY-MM-DD HH24:MI:SS'));
+INSERT INTO EMERGENCY_VEHICLES (emergency_id, vehicle_id, priority_status, intersection_id, timestamp) VALUES
+(504, 302, 'Low', 205, TO_DATE('2024-11-14 10:00:00', 'YYYY-MM-DD HH24:MI:SS'));
+INSERT INTO EMERGENCY_VEHICLES (emergency_id, vehicle_id, priority_status, intersection_id, timestamp) VALUES
+(505, 302, 'High', 206, TO_DATE('2024-11-14 10:15:00', 'YYYY-MM-DD HH24:MI:SS'));
+INSERT INTO EMERGENCY_VEHICLES (emergency_id, vehicle_id, priority_status, intersection_id, timestamp) VALUES
+(506, 306, 'Medium', 201, TO_DATE('2024-11-14 11:30:00', 'YYYY-MM-DD HH24:MI:SS'));
+
+
+
+
+
+SELECT * FROM INTERSECTIONS;
+SELECT * FROM TRAFFIC_SIGNALS;
+SELECT * FROM TRAFFIC_DENSITY_LOG;
+SELECT * FROM VEHICLES;
+SELECT * FROM EMERGENCY_VEHICLES;
+
+
+
+--query
+
+
+SELECT vehicle_id, type  
+FROM VEHICLES
+WHERE type IN ('Car', 'Emergency'
+);
+
+
+SELECT vehicle_id, type, speed, direction, intersection_id
+FROM VEHICLES
+WHERE intersection_id IN (
+    SELECT intersection_id
+    FROM INTERSECTIONS
+    WHERE density_level = 5
+);
+    SELECT 1
+    FROM EMERGENCY_VEHICLES E
+    WHERE E.intersection_id = I.intersection_id
+SELECT intersection_id, name, location, density_level
+FROM INTERSECTIONS I
+WHERE EXISTS (
+
+);
+
+
+
+
+SELECT vehicle_id, type, speed, intersection_id
+FROM VEHICLES
+WHERE speed > ANY (
+    SELECT speed
+    FROM VEHICLES
+    WHERE type = 'Emergency'
+);
+
+
+
+
+
+SELECT v.vehicle_id, v.type
+FROM VEHICLES v
+WHERE v.intersection_id IN (
+    SELECT e.intersection_id
+    FROM EMERGENCY_VEHICLES e
+    JOIN VEHICLES v2 ON e.vehicle_id = v2.vehicle_id
+    WHERE e.priority_status = 'High'
+);
+
+
+
+UPDATE TRAFFIC_SIGNALS
+SET status = 'GREEN'
+WHERE intersection_id IN (
+    SELECT intersection_id
+    FROM INTERSECTIONS
+    WHERE density_level = 5
+);
+
+
+
+DELETE FROM traffic_signals
+  WHERE location = 'Banani';
+
+
+INSERT INTO TRAFFIC_SIGNALS (signal_id, location, status, default_timing, intersection_id) 
+VALUES (105, 'Banani', 'RED', 50, 205);
+
+
+
+
+
+--join
+
+
+SELECT i.intersection_id, ts.signal_id
+FROM INTERSECTIONS i
+LEFT JOIN TRAFFIC_SIGNALS ts ON i.intersection_id = ts.intersection_id;
+
+
+--left join
+SELECT I.intersection_id, I.name AS intersection_name, T.signal_id, T.status
+FROM INTERSECTIONS I
+LEFT JOIN TRAFFIC_SIGNALS T ON I.intersection_id = T.intersection_id;
+
+
+
+--inner join  Between VEHICLES and INTERSECTIONS
+SELECT V.vehicle_id, V.type, V.speed, V.direction, I.name AS intersection_name
+FROM VEHICLES V
+INNER JOIN INTERSECTIONS I ON V.intersection_id = I.intersection_id;
+
+
+
+--left join Between VEHICLES and EMERGENCY_VEHICLES
+SELECT V.vehicle_id, V.type, E.priority_status
+FROM VEHICLES V
+LEFT JOIN EMERGENCY_VEHICLES E ON V.vehicle_id = E.vehicle_id;
+
+
+--right join Between VEHICLES and EMERGENCY_VEHICLES
+SELECT V.vehicle_id, V.type, E.priority_status
+FROM VEHICLES V
+RIGHT JOIN EMERGENCY_VEHICLES E ON V.vehicle_id = E.vehicle_id;
+
+
+--full outer join Between VEHICLES and EMERGENCY_VEHICLES
+SELECT V.vehicle_id, V.type, E.priority_status
+FROM VEHICLES V
+LEFT JOIN EMERGENCY_VEHICLES E ON V.vehicle_id = E.vehicle_id
+UNION
+SELECT V.vehicle_id, V.type, E.priority_status
+FROM VEHICLES V
+RIGHT JOIN EMERGENCY_VEHICLES E ON V.vehicle_id = E.vehicle_id;
+
+
+--multi join operation between vehicles, intersections, traffic_signals
+SELECT 
+    V.vehicle_id,
+    V.type AS vehicle_type,
+    I.name AS intersection_name,
+    T.signal_id,
+    T.status AS signal_status
+FROM 
+    VEHICLES V
+JOIN 
+    INTERSECTIONS I
+ON 
+    V.intersection_id = I.intersection_id
+JOIN 
+    TRAFFIC_SIGNALS T
+ON 
+    I.intersection_id = T.intersection_id;
+
+
+ 
+
+
+--pl-sql
+
+
+
+--Count Vehicles in High-Density Intersections
+SET SERVEROUTPUT ON;
+
+DECLARE
+    vehicle_count NUMBER;
+BEGIN
+    FOR rec IN (
+        SELECT intersection_id, density_level
+        FROM INTERSECTIONS
+        WHERE density_level >= 4
+    ) LOOP
+        SELECT COUNT(*) INTO vehicle_count
+        FROM VEHICLES
+        WHERE intersection_id = rec.intersection_id;
+
+        DBMS_OUTPUT.PUT_LINE('Intersection ' || rec.intersection_id || 
+                             ': ' || vehicle_count || ' vehicles detected in high-density zone.');
+    END LOOP;
+END;
+/
+
+
+
+--Check If a Specific Vehicle Passed
+SET SERVEROUTPUT ON;
+DECLARE
+vehicle_id NUMBER := 101; -- Vehicle ID to check
+vehicle_count NUMBER;
+BEGIN
+-- Check if the vehicle exists
+SELECT COUNT(*)
+INTO vehicle_count
+FROM VEHICLES
+WHERE VEHICLE_ID = vehicle_id;
+
+-- Display availability based on the count
+IF vehicle_count > 0 THEN
+    DBMS_OUTPUT.PUT_LINE('Vehicle ID ' || vehicle_id || ' has passed through the system.');
+ELSE
+    DBMS_OUTPUT.PUT_LINE('Vehicle ID ' || vehicle_id || ' has NOT passed through the system.');
+END IF;
+END;
+/
+
+
+
+
+
+--update the status of traffic signals based on the density level of vehicles
+BEGIN
+    FOR rec IN (
+        SELECT intersection_id, density_level
+        FROM INTERSECTIONS
+    ) LOOP
+        IF rec.density_level >= 4 THEN
+            UPDATE TRAFFIC_SIGNALS
+            SET status = 'GREEN'
+            WHERE intersection_id = rec.intersection_id;
+            DBMS_OUTPUT.PUT_LINE('Intersection ID ' || rec.intersection_id || ' set to GREEN due to high density.');
+        ELSE
+            UPDATE TRAFFIC_SIGNALS
+            SET status = 'RED'
+            WHERE intersection_id = rec.intersection_id;
+            DBMS_OUTPUT.PUT_LINE('Intersection ID ' || rec.intersection_id || ' set to RED due to low density.');
+        END IF;
+    END LOOP;
+END;
+/
+
+select* from traffic_signals;
+
+
+
+
+
+--Adjust Signal Timing Based on Vehicle Density
+SET SERVEROUTPUT ON;
+
+BEGIN
+    FOR rec IN (
+        SELECT intersection_id, density_level
+        FROM INTERSECTIONS
+    ) LOOP
+        -- Adjust signal timing based on density level
+        IF rec.density_level >= 5 THEN
+            DBMS_OUTPUT.PUT_LINE('Intersection ' || rec.intersection_id || ': Setting GREEN signal for 90 seconds.');
+        ELSIF rec.density_level BETWEEN 3 AND 4 THEN
+            DBMS_OUTPUT.PUT_LINE('Intersection ' || rec.intersection_id || ': Setting YELLOW signal for 60 seconds.');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Intersection ' || rec.intersection_id || ': Setting RED signal for 30 seconds.');
+        END IF;
+    END LOOP;
+END;
+/
+
+
+
+
+--Check Emergency Vehicle Status and Update Signals
+SET SERVEROUTPUT ON;
+
+BEGIN
+    FOR rec IN (
+        SELECT intersection_id, priority_status
+        FROM EMERGENCY_VEHICLES
+    ) LOOP
+        IF rec.priority_status = 'High' THEN
+            UPDATE TRAFFIC_SIGNALS
+            SET status = 'GREEN'
+            WHERE intersection_id = rec.intersection_id;
+            DBMS_OUTPUT.PUT_LINE('Intersection ' || rec.intersection_id || ': Signal turned GREEN for emergency.');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Intersection ' || rec.intersection_id || ': No emergency detected.');
+        END IF;
+    END LOOP;
+END;
+/
+
+
+
+--Reset Traffic Signal Status After Peak Hours
+SET SERVEROUTPUT ON;
+
+BEGIN
+    FOR rec IN (
+        SELECT signal_id, status, intersection_id
+        FROM TRAFFIC_SIGNALS
+    ) LOOP
+        IF rec.status = 'RED' THEN
+            UPDATE TRAFFIC_SIGNALS
+            SET status = 'GREEN'
+            WHERE signal_id = rec.signal_id;
+            DBMS_OUTPUT.PUT_LINE('Signal ID ' || rec.signal_id || ': Reset to GREEN after peak hours.');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Signal ID ' || rec.signal_id || ': Already GREEN, no change required.');
+        END IF;
+    END LOOP;
+END;
+/
+
+
+
+-- Create the Function
+CREATE OR REPLACE FUNCTION get_vehicle_count(intersection_id_in NUMBER)
+RETURN NUMBER
+IS
+    vehicle_count NUMBER;
+BEGIN
+    -- Query to count the number of vehicles at the given intersection
+    SELECT COUNT(*) INTO vehicle_count
+    FROM VEHICLES
+    WHERE intersection_id = intersection_id_in;
+
+    RETURN vehicle_count;
+END;
+/
+
+-- Call the function
+DECLARE
+    total_vehicles NUMBER;
+BEGIN
+    total_vehicles := get_vehicle_count(201);
+    DBMS_OUTPUT.PUT_LINE('Total vehicles at intersection 201: ' || total_vehicles);
+END;
+/
+
+
+
+--cursor
+SET SERVEROUTPUT ON;
+
+DECLARE
+    -- Define the cursor
+    CURSOR high_density_cursor IS
+        SELECT intersection_id, timestamp, vehicle_count, density_level
+        FROM TRAFFIC_DENSITY_LOG
+        WHERE density_level >= 4; -- High-density intersections
+    
+    -- Declare variables to hold cursor data
+    v_intersection_id TRAFFIC_DENSITY_LOG.intersection_id%TYPE;
+    v_timestamp TRAFFIC_DENSITY_LOG.timestamp%TYPE;
+    v_vehicle_count TRAFFIC_DENSITY_LOG.vehicle_count%TYPE;
+    v_density_level TRAFFIC_DENSITY_LOG.density_level%TYPE;
+BEGIN
+    -- Open the cursor and process each record
+    OPEN high_density_cursor;
+    LOOP
+        -- Fetch each record into the declared variables
+        FETCH high_density_cursor INTO v_intersection_id, v_timestamp, v_vehicle_count, v_density_level;
+        
+        -- Exit the loop when no more rows are available
+        EXIT WHEN high_density_cursor%NOTFOUND;
+
+        -- Display the fetched data
+        DBMS_OUTPUT.PUT_LINE('Intersection ID: ' || v_intersection_id || 
+                             ', Timestamp: ' || TO_CHAR(v_timestamp, 'YYYY-MM-DD HH24:MI:SS') || 
+                             ', Vehicle Count: ' || v_vehicle_count || 
+                             ', Density Level: ' || v_density_level);
+    END LOOP;
+
+    -- Close the cursor
+    CLOSE high_density_cursor;
+END;
+/
+
+
+--trigger 
+CREATE OR REPLACE TRIGGER trg_emergency_vehicle_signal
+AFTER INSERT ON EMERGENCY_VEHICLES
+FOR EACH ROW
+BEGIN
+    -- Check if the inserted emergency vehicle has a high priority
+    IF :NEW.priority_status = 'High' THEN
+        -- Update the traffic signal to GREEN at the relevant intersection
+        UPDATE TRAFFIC_SIGNALS
+        SET status = 'GREEN'
+        WHERE intersection_id = :NEW.intersection_id;
+        
+        -- Output message to confirm the action
+        DBMS_OUTPUT.PUT_LINE('Signal set to GREEN at Intersection ' || :NEW.intersection_id || ' due to high priority emergency vehicle.');
+    END IF;
+END;
+/
+
+--trigger test
+-- Insert a high-priority emergency vehicle into EMERGENCY_VEHICLES
+INSERT INTO EMERGENCY_VEHICLES (emergency_id, vehicle_id, priority_status, intersection_id, timestamp)
+VALUES (507, 307, 'High', 202, TO_DATE('2024-12-11 10:00:00', 'YYYY-MM-DD HH24:MI:SS'));
+
+-- Check the traffic signal status at the intersection (should be 'GREEN')
+SELECT * FROM TRAFFIC_SIGNALS WHERE intersection_id = 202;
+
+
+
+
+
+
+
+
+
+
+
+
+
+BEGIN
+    -- Delete dependent records in EMERGENCY_VEHICLES first
+    DELETE FROM EMERGENCY_VEHICLES
+    WHERE vehicle_id IN (
+        SELECT vehicle_id
+        FROM VEHICLES
+        WHERE timestamp < SYSDATE - 7
+    );
+
+    -- Now delete the main VEHICLES records
+    DELETE FROM VEHICLES
+    WHERE timestamp < SYSDATE - 7;
+
+    DBMS_OUTPUT.PUT_LINE('Old vehicle records deleted successfully.');
+END;
+/
+
